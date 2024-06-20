@@ -1,6 +1,6 @@
 #include "data_manager.hpp"
 
-void write_to_csv(const vector<valarray<double>>& data, const vector<string>& column_names, string CSV_FILENAME = "results.csv") {
+void write_to_csv(const vector<vector<double>>& data, const vector<string>& column_names, string CSV_FILENAME = "results.csv") {
     string csv_file_path = RESULTS_FOLDER_PATH.generic_string() + "/" + CSV_FILENAME;
     ofstream output_file(csv_file_path);
 

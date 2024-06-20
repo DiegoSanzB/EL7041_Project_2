@@ -18,6 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # FetchContent_MakeAvailable(fmt)
 
 add_executable(Project_2_EL7401 main.cpp
+                src/sequence_generator.cpp
                src/data_manager.cpp)
 # target_link_libraries(Project_2_EL7401 PRIVATE fmt::fmt)
 
