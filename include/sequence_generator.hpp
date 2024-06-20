@@ -3,7 +3,7 @@ Hola
 */
 // Define constants
 // const int MAX_SEQUENCE_LENGTH = 1e5;
-const int MAX_SEQUENCE_LENGTH = 1e2;
+const int MAX_SEQUENCE_LENGTH = 1e5;
 const int PILOT = 69;
 
 // Add standard libraries

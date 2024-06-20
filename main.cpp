@@ -2,27 +2,19 @@
 #include <sequence_generator.hpp>
 
 using namespace std;
-
+const vector<int> mod_complexity = {4, 16};
+const vector<string> mod_complexity_str = {"QPSK", "16QAM"};
 int main() {
-    const int complexity = 4;
-    vector<int> seq = generate_sequence_bins(complexity);
-    for (int i = 0; i < seq.size(); i++) {
-        cout << bitset<2>(seq[i]) << " ";
-        // cout << seq[i] << " ";
+    for (int i = 0; i < mod_complexity.size(); i++) {
+        vector<int> seq = generate_sequence_bins(mod_complexity[i]);
+        vector<complex<double>> modulated_seq = modulate_sequence(seq, mod_complexity[i]);
+        vector<double> real, imaginary;
+        tie(real, imaginary) = separate_real_imaginary(modulated_seq);
+        vector<vector<double>> data = {real, imaginary};
+        vector<string> column_names = {"re", "im"};
+        write_to_csv(data, column_names, mod_complexity_str[i] + ".csv");
     }
-    cout << endl;
-    vector<complex<double>> modulated_seq = modulate_sequence(seq, complexity);
-    for (int i = 0; i < modulated_seq.size(); i++) {
-        cout << modulated_seq[i] << " ";
-    }
-    cout << endl;
-    // Separate real and imaginary parts
-    vector<double> real, imaginary;
-    tie(real, imaginary) = separate_real_imaginary(modulated_seq);
-    // Write to CSV
-    vector<vector<double>> data = {real, imaginary};
-    vector<string> column_names = {"Real", "Imaginary"};
-    write_to_csv(data, column_names, "test.csv");
+    return 0;
 }
 
 // -- END OF FILE -- // 
