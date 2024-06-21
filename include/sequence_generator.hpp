@@ -13,6 +13,7 @@ const int PILOT = 69;
 #include <bitset>
 #include <complex>
 #include <unordered_map>
+#include <random>
 using namespace std;
 
 // Map with modulations for each symbol
@@ -46,3 +47,4 @@ const unordered_map<int, complex<double>> QAM16 = {
 vector<int> generate_sequence_bins(int mod_complexity, int n = MAX_SEQUENCE_LENGTH);
 vector<complex<double>> modulate_sequence(const vector<int>& sequence, int mod_complexity);
 tuple<vector<double>, vector<double>> separate_real_imaginary(const vector<complex<double>>& data);
+vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr);

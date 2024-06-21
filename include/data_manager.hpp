@@ -14,6 +14,7 @@ const filesystem::path mainFilePath = filesystem::current_path();
 const filesystem::path RESULTS_FOLDER_PATH = mainFilePath.parent_path() / "results";
 
 void write_to_csv(const vector<vector<double>> &data, const vector<string> &column_names, string CSV_FILENAME);
+void add_to_csv(const vector<vector<double>>& data, const vector<string>& column_names, string CSV_FILENAME);
 
 #endif
 // -- END OF FILE -- //

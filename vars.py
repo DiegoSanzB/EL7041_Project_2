@@ -77,3 +77,6 @@ LEG16 = [Patch(facecolor = COLOR["0"], edgecolor = COLOR["0"], label = '0000'),
                      Patch(facecolor = COLOR["13"], edgecolor = COLOR["13"], label = '1101'),
                      Patch(facecolor = COLOR["14"], edgecolor = COLOR["14"], label = '1110'),
                      Patch(facecolor = COLOR["15"], edgecolor = COLOR["15"], label = '1111')]
+
+# Plotted SNR values
+SNR = [-5, 0, 10, 30]
