@@ -38,7 +38,14 @@ vector<complex<double>> modulate_sequence(const vector<int>& sequence, int mod_c
     // Get modulations
     for (int i = 0; i < size; i++) {
         modulated_sequence[i] = modulation->at(sequence[i]);
+        // Normalize
+        if (mod_complexity == 4) {
+            modulated_sequence[i] /= sqrt(2);
+        } else if (mod_complexity == 16) {
+            modulated_sequence[i] /= sqrt(10);
+        }
     }
+
     return modulated_sequence;
 }
 // Tuple that separates data into real and imaginary parts
@@ -57,4 +64,7 @@ tuple<vector<double>, vector<double>> separate_real_imaginary(const vector<compl
     return make_tuple(real_part, imaginary_part);
 } 
 // Add noise
+// vector<complex<double>> add_noise(const vector<complex<double>>& data, double snr) {
+
+// }
 
