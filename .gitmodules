@@ -1,0 +1,3 @@
+[submodule "QAMDemodulation"]
+	path = QAMDemodulation
+	url = https://github.com/DiegoSanzB/QAMDemodulation.git
