@@ -51,6 +51,8 @@ COLOR = {
     "15" : 'navy'
 }
 
+# Patch size
+S = 5
 # Mod lists
 MOD4 = list(QPSK.values())
 MOD16 = list(QAM16.values())
