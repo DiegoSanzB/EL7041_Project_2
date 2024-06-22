@@ -45,7 +45,7 @@ void add_to_csv(const vector<vector<double>>& data, const vector<string>& column
     // Write new headers
     for (const string& column_name : column_names) {
         temp_file << column_name << ",";
-        cout << column_name << ",";
+        // cout << column_name << ",";
     }
     temp_file << endl;
 
@@ -71,7 +71,7 @@ void add_to_csv(const vector<vector<double>>& data, const vector<string>& column
             // temp_file << ",";
             temp_file << data[j][i] << ",";
             // If this is the first row, print
-            if ((i == 0) and (j == 1)) cout << data[j][i] << ",";
+            // if ((i == 0) and (j == 1)) cout << data[j][i] << ",";
         }
         temp_file << endl;
     }

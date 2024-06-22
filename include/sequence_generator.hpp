@@ -1,10 +1,6 @@
 /*
 Hola
 */
-// Define constants
-// const int MAX_SEQUENCE_LENGTH = 1e5;
-const int MAX_SEQUENCE_LENGTH = 1e5;
-const int PILOT = 69;
 
 // Add standard libraries
 #include <iostream>
@@ -15,6 +11,12 @@ const int PILOT = 69;
 #include <unordered_map>
 #include <random>
 using namespace std;
+
+// Define constants
+// const int MAX_SEQUENCE_LENGTH = 1e5;
+const int MAX_SEQUENCE_LENGTH = 1e5;
+const int PILOT = 3;
+const double PI = 3.141592653589793238460;
 
 // Map with modulations for each symbol
 const unordered_map<int, complex<double>> QPSK = {
@@ -48,3 +50,6 @@ vector<int> generate_sequence_bins(int mod_complexity, int n = MAX_SEQUENCE_LENG
 vector<complex<double>> modulate_sequence(const vector<int>& sequence, int mod_complexity);
 tuple<vector<double>, vector<double>> separate_real_imaginary(const vector<complex<double>>& data);
 vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr);
+vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, int mod_complexity, int pilot_spacing, int pilot_num = PILOT);
+vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq);
+vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity);
