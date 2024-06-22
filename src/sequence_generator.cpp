@@ -1,4 +1,3 @@
-// Include the header file
 #include "sequence_generator.hpp"
 
 // Generate a random sequence of numbers 
@@ -121,94 +120,109 @@ vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_c
 }
 
 // Add multipath
-// Option 1 - Reflections and Doppler
-vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq) {
-    // cout << "Adding multipath" << endl;
-    // Get size of data
-    int size = data.size();
-
-    // Create array to store multipath data
-    vector<complex<double>> multipath_data(size);
-
-    // Create gaussian generator
-    default_random_engine generator;
-    // normal_distribution<double> distribution(0, 1);
-    uniform_real_distribution<> dis_angle(0, 2 * PI);
-
-    // Get lambda
-    double lambda = 3e8 / carrier_freq; 
-
-    // Get f_max (With speed in m/s)
-    double max_doppler = (speed / 3.6) / lambda;
-
-    // t vector
-    vector<double> t(size);
-    for (int i = 0; i < size; i++) {
-        t[i] = static_cast<double>(i) / size;
-    }
-
-    // Normalized power
-    double an = 1 / sqrt(paths);
-
-    // Random phase
-    vector<double> thetan(paths);
-    for (int i = 0; i < paths; i++) {
-        thetan[i] = dis_angle(generator);
-    }
-
-    // Doppler
-    vector<double> fDn(paths);
-    for (int i = 0; i < paths; i++) {
-        fDn[i] = max_doppler * cos(2 * PI * dis_angle(generator));
-    }
-
-    // Initialize multipath channel
-    vector<complex<double>> H(size, complex<double>(0.0, 0.0));
-
-    // Create multipath
-    for (int n = 0; n < paths; n++) {
-        for (int i = 0; i < size; i++) {
-            H[i] += an * exp(complex<double>(0, thetan[n] - 2 * PI * fDn[n] * t[i]));
-        }
-    }
-    
+vector<complex<double>> apply_channel(const vector<complex<double>>& data, vector<complex<double>>& H) {
     // Apply multipath
-    for (int i = 0; i < size; i++) {
+    size_t size = data.size();
+
+    vector<complex<double>> multipath_data(size);
+    
+    for (size_t i = 0; i < size; i++) {
         multipath_data[i] = data[i] * H[i];
     }
 
     return multipath_data;
-
 }
+
+// MOVI ESTO A channel_generator PARA MANEJAR POR SEPARADO EL H
+
+// Option 1 - Reflections and Doppler
+// vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq) {
+//     // cout << "Adding multipath" << endl;
+//     // Get size of data
+//     int size = data.size();
+
+//     // Create array to store multipath data
+//     vector<complex<double>> multipath_data(size);
+
+//     // Create gaussian generator
+//     default_random_engine generator;
+//     // normal_distribution<double> distribution(0, 1);
+//     uniform_real_distribution<> dis_angle(0, 2 * PI);
+
+//     // Get lambda
+//     double lambda = 3e8 / carrier_freq; 
+
+//     // Get f_max (With speed in m/s)
+//     double max_doppler = (speed / 3.6) / lambda;
+
+//     // t vector
+//     vector<double> t(size);
+//     for (int i = 0; i < size; i++) {
+//         t[i] = static_cast<double>(i) / size;
+//     }
+
+//     // Normalized power
+//     double an = 1 / sqrt(paths);
+
+//     // Random phase
+//     vector<double> thetan(paths);
+//     for (int i = 0; i < paths; i++) {
+//         thetan[i] = dis_angle(generator);
+//     }
+
+//     // Doppler
+//     vector<double> fDn(paths);
+//     for (int i = 0; i < paths; i++) {
+//         fDn[i] = max_doppler * cos(2 * PI * dis_angle(generator));
+//     }
+
+//     // Initialize multipath channel
+//     vector<complex<double>> H(size, complex<double>(0.0, 0.0));
+
+//     // Create multipath
+//     for (int n = 0; n < paths; n++) {
+//         for (int i = 0; i < size; i++) {
+//             H[i] += an * exp(complex<double>(0, thetan[n] - 2 * PI * fDn[n] * t[i]));
+//         }
+//     }
+    
+//     // Apply multipath
+//     for (int i = 0; i < size; i++) {
+//         multipath_data[i] = data[i] * H[i];
+//     }
+
+//     return multipath_data;
+
+// }
 
 // Option 2 - Rayleigh
-vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity) {
-    // cout << "Adding Rayleigh multipath" << endl;
-    // Get size of data
-    int size = data.size();
+// vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity) {
+//     // cout << "Adding Rayleigh multipath" << endl;
+//     // Get size of data
+//     int size = data.size();
 
-    // Create array to store multipath data
-    vector<complex<double>> multipath_data(size);
+//     // Create array to store multipath data
+//     vector<complex<double>> multipath_data(size);
 
-    // Create gaussian generator
-    default_random_engine generator;
-    normal_distribution<double> distribution(0.0, 1.0);
+//     // Create gaussian generator
+//     default_random_engine generator;
+//     normal_distribution<double> distribution(0.0, 1.0);
 
-    // Initialize multipath channel
-    vector<complex<double>> H(size, complex<double>(0.0, 0.0));
+//     // Initialize multipath channel
+//     vector<complex<double>> H(size, complex<double>(0.0, 0.0));
 
-    // Create multipath
-    for (int i = 0; i < size; i++) {
-        H[i] = complex<double>(distribution(generator), distribution(generator)) * sqrt(0.5);
-    }
+//     // Create multipath
+//     for (int i = 0; i < size; i++) {
+//         H[i] = complex<double>(distribution(generator), distribution(generator)) * sqrt(0.5);
+//     }
     
-    // Apply multipath
-    for (int i = 0; i < size; i++) {
-        multipath_data[i] = data[i] * H[i];
-    }
-    return multipath_data;
+//     // Apply multipath
+//     for (int i = 0; i < size; i++) {
+//         multipath_data[i] = data[i] * H[i];
+//     }
+//     return multipath_data;
     
-}
+// }
 
 
-
+// -- END OF FILE -- //

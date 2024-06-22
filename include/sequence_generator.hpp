@@ -12,6 +12,8 @@ Hola
 #include <random>
 using namespace std;
 
+#ifndef SEQUENCE_GENERATOR
+#define SEQUENCE_GENERATOR
 // Define constants
 // const int MAX_SEQUENCE_LENGTH = 1e5;
 const int MAX_SEQUENCE_LENGTH = 1e5;
@@ -51,5 +53,7 @@ vector<complex<double>> modulate_sequence(const vector<int>& sequence, int mod_c
 tuple<vector<double>, vector<double>> separate_real_imaginary(const vector<complex<double>>& data);
 vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr);
 vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, int mod_complexity, int pilot_spacing, int pilot_num = PILOT);
-vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq);
-vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity);
+vector<complex<double>> apply_channel(const vector<complex<double>>& data, vector<complex<double>>& H);
+// vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq);
+// vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity);
+#endif
