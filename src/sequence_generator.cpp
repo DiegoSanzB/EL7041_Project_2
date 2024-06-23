@@ -133,6 +133,18 @@ vector<complex<double>> apply_channel(const vector<complex<double>>& data, vecto
     return multipath_data;
 }
 
+vector<complex<double>> equalizate_channel(const vector<complex<double>>& data, vector<complex<double>>& H) {
+    // Equalizate channel
+    size_t size = data.size();
+
+    vector<complex<double>> equalizated_data(size);
+
+    for (size_t i = 0; i < size; i++) {
+        equalizated_data[i] = data[i] / H[i];
+    }
+    return equalizated_data;
+}
+
 // MOVI ESTO A channel_generator PARA MANEJAR POR SEPARADO EL H
 
 // Option 1 - Reflections and Doppler

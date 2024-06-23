@@ -54,6 +54,7 @@ tuple<vector<double>, vector<double>> separate_real_imaginary(const vector<compl
 vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr);
 vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, int mod_complexity, int pilot_spacing, int pilot_num = PILOT);
 vector<complex<double>> apply_channel(const vector<complex<double>>& data, vector<complex<double>>& H);
+vector<complex<double>> equalizate_channel(const vector<complex<double>>& data, vector<complex<double>>& H);
 // vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq);
 // vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity);
 #endif
