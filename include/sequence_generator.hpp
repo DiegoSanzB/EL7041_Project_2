@@ -53,3 +53,4 @@ vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_c
 vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, int mod_complexity, int pilot_spacing, int pilot_num = PILOT);
 vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq);
 vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity);
+vector<complex<double>> remove_pilot_symbols(const vector<complex<double>>& data, int pilot_spacing);

@@ -18,6 +18,7 @@ vector<int> generate_sequence_bins(int mod_complexity, int n) {
     }
     return sequence;
 }
+
 // Modulate data into complex numbers
 vector<complex<double>> modulate_sequence(const vector<int>& sequence, int mod_complexity) {
     // cout << "Modulating sequence" << endl;
@@ -55,9 +56,9 @@ vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, i
     // Modulate pilot symbol
     complex<double> pilot_symbol;
     if (mod_complexity == 4) {
-        pilot_symbol = QPSK.at(PILOT)/sqrt(2);
+        pilot_symbol = QPSK.at(PILOT); // /sqrt(2);
     } else if (mod_complexity == 16) {
-        pilot_symbol = QAM16.at(PILOT)/sqrt(10);
+        pilot_symbol = QAM16.at(PILOT); // /sqrt(10);
     } else {
         cerr << "Error: Modulation complexity not supported." << endl;
         return {};
@@ -71,7 +72,7 @@ vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, i
     // Add pilot symbols
     int pilot_counter = 0;
     for (int i = 0; i < size + size/pilot_spacing; i++) {
-        if (i % (pilot_spacing) == 0) {
+        if (i % (pilot_spacing + 1) == 0) {
             data_with_pilots[i] = pilot_symbol;
             pilot_counter++;
         } else {
@@ -208,6 +209,23 @@ vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, i
     }
     return multipath_data;
     
+}
+
+
+// Remove pilots
+vector<complex<double>> remove_pilot_symbols(const vector<complex<double>>& data, int pilot_spacing) {
+    // cout << "Removing pilot symbols" << endl;
+    // Get size of data
+    int size = data.size();
+    // Create array to store data without pilot symbols, (size unknown)
+    vector<complex<double>> data_without_pilots;
+    // Remove pilot symbols
+    for (int i = 0; i < size; i++) {
+        if (i % (pilot_spacing + 1) != 0) {
+            data_without_pilots.push_back(data[i]);
+        }
+    }
+    return data_without_pilots;
 }
 
 

@@ -47,6 +47,8 @@ int main() {
 
         // Add pilot
         modulated_seq = add_pilot_symbols(modulated_seq, mod_complexity[i], pilot_plot);
+        // // Remove pilot
+        // modulated_seq = remove_pilot_symbols(modulated_seq, pilot_plot);
 
         // Separate real and imaginary parts
         vector<double> real, imaginary;
