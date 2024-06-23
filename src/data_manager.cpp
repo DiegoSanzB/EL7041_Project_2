@@ -85,4 +85,17 @@ void add_to_csv(const vector<vector<double>>& data, const vector<string>& column
     rename(temp_file_path.c_str(), csv_file_path.c_str());
 }
 
+void write_to_csv(const vector<vector<int>> &data, const vector<string> &column_names, string CSV_FILENAME) {
+    vector<vector<double>> data_double;
+    
+    for (size_t i = 0; i < data.size(); i++) {
+        data_double.push_back({});
+        for (size_t j = 0; j < data[0].size(); j++) {
+            double d = (double) data[i][j];
+            data_double[i].push_back(d);
+        }
+    }
+    write_to_csv(data_double, column_names, CSV_FILENAME);
+}
+
 // -- END OF FILE -- //
