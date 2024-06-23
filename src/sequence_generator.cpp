@@ -56,9 +56,9 @@ vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, i
     // Modulate pilot symbol
     complex<double> pilot_symbol;
     if (mod_complexity == 4) {
-        pilot_symbol = QPSK.at(PILOT); // /sqrt(2);
+        pilot_symbol = QPSK.at(PILOT) / sqrt(2);
     } else if (mod_complexity == 16) {
-        pilot_symbol = QAM16.at(PILOT); // /sqrt(10);
+        pilot_symbol = QAM16.at(PILOT) / sqrt(10);
     } else {
         cerr << "Error: Modulation complexity not supported." << endl;
         return {};
