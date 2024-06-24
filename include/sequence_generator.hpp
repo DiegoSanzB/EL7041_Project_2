@@ -55,7 +55,7 @@ vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_c
 vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, int mod_complexity, int pilot_spacing, int pilot_num = PILOT);
 vector<complex<double>> apply_channel(const vector<complex<double>>& data, vector<complex<double>>& H);
 vector<complex<double>> equalizate_channel(const vector<complex<double>>& data, vector<complex<double>>& H);
-tuple<vector<double>, vector<double>> remove_pilot_symbols(const vector<complex<double>>& data, int pilot_spacing);
+tuple<vector<complex<double>>, vector<complex<double>>> remove_pilot_symbols(const vector<complex<double>>& data, int pilot_spacing);
 // vector<complex<double>> add_doppler_mpth(const vector<complex<double>>& data, int mod_complexity, int paths, double speed, double carrier_freq);
 // vector<complex<double>> add_rayleigh_mpth(const vector<complex<double>>& data, int mod_complexity);
 #endif

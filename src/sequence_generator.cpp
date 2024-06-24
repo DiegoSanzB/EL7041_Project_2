@@ -146,7 +146,7 @@ vector<complex<double>> equalizate_channel(const vector<complex<double>>& data, 
 }
 
 // Remove pilots
-tuple<vector<double>, vector<double>> remove_pilot_symbols(const vector<complex<double>>& data, int pilot_spacing) {
+tuple<vector<complex<double>>, vector<complex<double>>> remove_pilot_symbols(const vector<complex<double>>& data, int pilot_spacing) {
     // cout << "Removing pilot symbols" << endl;
     // Get size of data
     int size = data.size();
