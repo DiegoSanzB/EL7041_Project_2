@@ -145,6 +145,25 @@ vector<complex<double>> equalizate_channel(const vector<complex<double>>& data, 
     return equalizated_data;
 }
 
+// Remove pilots
+tuple<vector<double>, vector<double>> remove_pilot_symbols(const vector<complex<double>>& data, int pilot_spacing) {
+    // cout << "Removing pilot symbols" << endl;
+    // Get size of data
+    int size = data.size();
+    // Create array to store data without pilot symbols, (size unknown)
+    vector<complex<double>> data_without_pilots;
+    vector<complex<double>> pilots;
+    // Remove pilot symbols
+    for (int i = 0; i < size; i++) {
+        if (i % (pilot_spacing + 1) != 0) {
+            data_without_pilots.push_back(data[i]);
+        }
+        else {
+            pilots.push_back(data[i]);
+        }
+    }
+    return make_tuple(data_without_pilots, pilots);
+}
 // MOVI ESTO A channel_generator PARA MANEJAR POR SEPARADO EL H
 
 // Option 1 - Reflections and Doppler
