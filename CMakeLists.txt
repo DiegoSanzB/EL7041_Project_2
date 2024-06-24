@@ -7,19 +7,29 @@ project(Project_2_EL7401
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# # Bring in the fmt library
-# include(FetchContent)
-# FetchContent_Declare(
-#     fmt
-#     GIT_REPOSITORY https://github.com/fmtlib/fmt.github
-#     GIT_TAG 10.1.1
-# )
+# Find ALGLIB library
+find_library(ALGLIB_LIBRARY NAMES alglib PATHS /usr/lib/x86_64-linux-gnu)
 
-# FetchContent_MakeAvailable(fmt)
+if(NOT ALGLIB_LIBRARY)
+    message(FATAL_ERROR "ALGLIB library not found")
+endif()
 
-add_executable(Project_2_EL7401 main.cpp
-                src/sequence_generator.cpp
-               src/data_manager.cpp)
-# target_link_libraries(Project_2_EL7401 PRIVATE fmt::fmt)
+# Create imported target for ALGLIB
+add_library(ALGLIB::alglib UNKNOWN IMPORTED)
+set_target_properties(ALGLIB::alglib PROPERTIES
+    IMPORTED_LOCATION "${ALGLIB_LIBRARY}"
+)
 
+# Add your executable
+add_executable(Project_2_EL7401 
+    main.cpp
+    src/sequence_generator.cpp
+    src/data_manager.cpp
+)
+
+# Link ALGLIB to your target
+target_link_libraries(Project_2_EL7401 PRIVATE ALGLIB::alglib)
+
+# Include ALGLIB headers
+# Assuming the ALGLIB headers are in /usr/include or a system path
 target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
