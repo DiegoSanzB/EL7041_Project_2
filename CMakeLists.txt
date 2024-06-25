@@ -34,8 +34,11 @@ add_executable(Project_2_EL7401 main.cpp
                 src/data_manager.cpp
                 src/channel_generator.cpp
                 src/demodulation.cpp
-                src/BER.cpp)
-                # QAMDemodulation/QAM\ Demodulation.cpp)
+                src/BER.cpp
+                src/questions.cpp
+                QAMDemodulation/QAM\ Demodulation.cpp
+                
+)
 
 target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/QAMDemodulation)
