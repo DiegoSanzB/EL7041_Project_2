@@ -46,6 +46,6 @@ const int M = 1e5;
 */ 
 
 void separate_and_save_complex(const vector<complex<double>> &data, string CSV_FILENAME, string identifier, bool create_new_file);
-void constellations();
+void constellations(std::mt19937& gen);
 
 #endif

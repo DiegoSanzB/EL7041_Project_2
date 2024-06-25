@@ -51,7 +51,7 @@ const unordered_map<int, complex<double>> QAM16 = {
 vector<int> generate_sequence_bins(int mod_complexity, int n = MAX_SEQUENCE_LENGTH);
 vector<complex<double>> modulate_sequence(const vector<int>& sequence, int mod_complexity);
 tuple<vector<double>, vector<double>> separate_real_imaginary(const vector<complex<double>>& data);
-vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr);
+vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr, std::mt19937& gen);
 vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, int mod_complexity, int pilot_spacing, int pilot_num = PILOT);
 vector<complex<double>> apply_channel(const vector<complex<double>>& data, vector<complex<double>>& H);
 vector<complex<double>> equalizate_channel(const vector<complex<double>>& data, vector<complex<double>>& H);

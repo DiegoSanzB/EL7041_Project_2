@@ -97,7 +97,7 @@ tuple<vector<double>, vector<double>> separate_real_imaginary(const vector<compl
 } 
 
 // Add noise
-vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr) {
+vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_complexity, double snr, std::mt19937& gen) {
     // cout << "Adding noise" << endl;
     // Get N_0 from SNR
     double N_0 = 1 / (pow(10, snr / 10)); // *log2(mod_complexity));
@@ -108,19 +108,18 @@ vector<complex<double>> add_noise(const vector<complex<double>>& data, int mod_c
     // Create array to store noisy data
     vector<complex<double>> noisy_data(size);
     // Create gaussian generator
-    default_random_engine generator;
     normal_distribution<double> distribution(0.0, 1.0);
     // Add noise
     double noise_real, noise_imag;
     for (int i = 0; i < size; i++)
     {
         // Generate noise
-        noise_real = distribution(generator) * (N_0 * 0.5);
-        noise_imag = distribution(generator) * (N_0 * 0.5);
+        noise_real = distribution(gen) * (N_0 * 0.5);
+        noise_imag = distribution(gen) * (N_0 * 0.5);
         // Add noise
         noisy_data[i] = data[i] + complex<double>(noise_real, noise_imag);
     }
-    // cout << snr << " " << noise_real << " "<< noise_imag << endl;
+    cout << snr << " " << noise_real << " "<< noise_imag << endl;
     return noisy_data;
 }
 

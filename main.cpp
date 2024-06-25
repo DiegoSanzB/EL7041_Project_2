@@ -3,7 +3,9 @@
 using namespace std;
 
 int main() {
-    constellations();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    constellations(gen);
     return 0;
 }
 

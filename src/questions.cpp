@@ -17,7 +17,7 @@ void separate_and_save_complex(const vector<complex<double>>& data, string CSV_F
 }
 
 
-void constellations(){
+void constellations(std::mt19937& gen){
     // Iterate by modulation complexity
     // Create bool flags
     bool bool_plot = true, bool_perfect = true, bool_fft = true, bool_cubic = true;
@@ -36,7 +36,7 @@ void constellations(){
         */ 
         for (int j = 0; j < SNR_PLOT.size(); j++){
             // Add noise
-            vector<complex<double>> noisy_seq = add_noise(modulated_seq, MOD_COMPLEXITY[i], SNR_PLOT[j]);
+            vector<complex<double>> noisy_seq = add_noise(modulated_seq, MOD_COMPLEXITY[i], SNR_PLOT[j], gen);
             // Save data
             separate_and_save_complex(noisy_seq, MOD_COMPLEXITY_STR[i] + "_snr.csv", to_string(SNR_PLOT[j]), bool_plot);
             bool_plot = false;
@@ -48,9 +48,9 @@ void constellations(){
         */
        // Infinite paths
         for (int j = 0; j < SNR_PLOT.size(); j++){
-            CArray H_rayleigh = generate_rayleigh_mpth(modulated_seq.size());
+            CArray H_rayleigh = generate_rayleigh_mpth(modulated_seq.size(), gen);
             vector<complex<double>> r_data = apply_channel(modulated_seq, H_rayleigh);
-            vector<complex<double>> noisy_r_data = add_noise(r_data, MOD_COMPLEXITY[i], SNR_PLOT[j]);
+            vector<complex<double>> noisy_r_data = add_noise(r_data, MOD_COMPLEXITY[i], SNR_PLOT[j], gen);
             // Save distorted data
             separate_and_save_complex(noisy_r_data, MOD_COMPLEXITY_STR[i] + "_rayleigh.csv", to_string(SNR_PLOT[j]), bool_plot);
             bool_plot = false;
@@ -77,9 +77,9 @@ void constellations(){
 
         // Finite paths (Doppler)
         for (int j = 0; j < SNR_PLOT.size(); j++){
-            CArray H_doppler = generate_doppler_mpth(modulated_seq.size(), PATH_PLOT, SPEED_PLOT, CARRIER_FREQ_PLOT);
+            CArray H_doppler = generate_doppler_mpth(modulated_seq.size(), PATH_PLOT, SPEED_PLOT, CARRIER_FREQ_PLOT, gen);
            vector<complex<double>> d_data = apply_channel(modulated_seq, H_doppler);
-            vector<complex<double>> noisy_d_data = add_noise(d_data, MOD_COMPLEXITY[i], SNR_PLOT[j]);
+            vector<complex<double>> noisy_d_data = add_noise(d_data, MOD_COMPLEXITY[i], SNR_PLOT[j], gen);
             // Save distorted data
             separate_and_save_complex(noisy_d_data, MOD_COMPLEXITY_STR[i] + "_doppler.csv", to_string(SNR_PLOT[j]), bool_plot);
             bool_plot = false;

@@ -19,7 +19,7 @@ typedef vector<Complex> CArray;
 
 #endif
 
-CArray generate_doppler_mpth(int size, int paths, double speed, double carrier_freq);
-CArray generate_rayleigh_mpth(int size);
+CArray generate_doppler_mpth(int size, int paths, double speed, double carrier_freq, std::mt19937& gen);
+CArray generate_rayleigh_mpth(int size, std::mt19937& gen);
 
 #endif
