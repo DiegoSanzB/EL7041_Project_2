@@ -46,8 +46,10 @@ add_executable(Project_2_EL7401 main.cpp
                 src/demodulation.cpp
                 src/interpolations.cpp
                 src/BER.cpp
+                src/questions.cpp
                 QAMDemodulation/QAM\ Demodulation.cpp
-                ${libalglib_SRC})
+                ${libalglib_SRC}
+)
 
 target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/QAMDemodulation)

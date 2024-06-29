@@ -9,6 +9,7 @@
 #include <vector>
 
 
+
 using namespace std;
 const filesystem::path mainFilePath = filesystem::current_path();
 const filesystem::path RESULTS_FOLDER_PATH = mainFilePath.parent_path() / "results";
