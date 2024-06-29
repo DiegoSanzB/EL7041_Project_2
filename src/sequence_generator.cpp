@@ -61,6 +61,7 @@ vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, i
         cerr << "Error: Modulation complexity not supported." << endl;
         return {};
     }
+    pilot_symbol = (1, 1);
     // Get size of data
     int size = data.size();
     // Calculate the number of pilots to insert

@@ -5,7 +5,9 @@ using namespace std;
 int main() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    constellations(gen);
+    
+    // constellations(gen);
+    compute_ber_data(gen);
     return 0;
 }
 
