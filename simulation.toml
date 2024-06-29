@@ -1,0 +1,5 @@
+[Project]
+name = "EL_7041_Project_2"
+
+[Simulation]
+mod_complexity = [4, 16]

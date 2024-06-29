@@ -1,10 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <complex>
-#include <libalglib/fasttransforms.h>
-#include <libalglib/interpolation.h>
-#include <algorithm>
-#include <fstream>
+#include <interpolations.hpp>
 using namespace std;
 
 
@@ -52,7 +46,7 @@ vector<complex<double>> fftInterpolateComplex(const complex<double>& point1, con
     Im_freq.setlength(n_interp);
     alglib::fftr1dinv(Re_freq, Re_end);
     alglib::fftr1dinv(Im_freq, Im_end);
-    printf("%s\n", Re_end.tostring(3).c_str());
+    // printf("%s\n", Re_end.tostring(3).c_str());
 
     // Convert the results back to vector<complex<double>>
     // Includes scaling

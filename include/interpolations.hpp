@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <complex>
-#include <libalglib/fasttransforms.h>
-#include <libalglib/interpolation.h>
+#include <fasttransforms.h>
+#include <interpolation.h>
 #include <algorithm>
 #include <fstream>
 using namespace std;

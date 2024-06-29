@@ -18,6 +18,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(tomlplusplus)
 
+# FetchContent_Declare(
+#         libalglib
+#         GIT_REPOSITORY https://github.com/S-Dafarra/alglib-cmake.git
+# )
+
+# FetchContent_MakeAvailable(libalglib)
+
 # FetchContent_GetProperties(tomlplusplus)
 # if(NOT tomlplusplus_POPULATED)
 #     FetchContent_Populate(tomlplusplus)
@@ -29,15 +36,23 @@ FetchContent_MakeAvailable(tomlplusplus)
 # include_directories(${tomlplusplus_INCLUDE_DIRS})
 # add_subdirectory(${tomlplusplus_SOURCE_DIR} ${tomlplusplus_BINARY_DIR})
 
+file(GLOB libalglib_SRC
+        "alglib-cpp/src/*.cpp")
+
 add_executable(Project_2_EL7401 main.cpp
                 src/sequence_generator.cpp
                 src/data_manager.cpp
                 src/channel_generator.cpp
                 src/demodulation.cpp
-                src/BER.cpp)
-                # QAMDemodulation/QAM\ Demodulation.cpp)
+                src/interpolations.cpp
+                src/BER.cpp
+                QAMDemodulation/QAM\ Demodulation.cpp
+                ${libalglib_SRC})
 
 target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/QAMDemodulation)
+target_include_directories(Project_2_EL7401 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/alglib-cpp/src)
+
+# add_library(libalglib STATIC)
 
 target_link_libraries(Project_2_EL7401 tomlplusplus::tomlplusplus)

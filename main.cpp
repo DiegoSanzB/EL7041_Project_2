@@ -21,7 +21,7 @@ int main() {
 
     // return 0;
 
-    const vector<string> mod_complexity_str = {"QPSK", "16QAM"};
+    const vector<string> mod_complexity_str = {"QPSK", "16QAM"}; 
     const vector<string> mod_str = {"PSK", "QAM"};
 
     // Create a vector of snr values
@@ -39,7 +39,7 @@ int main() {
     // Strings
     vector<string> column_names;
     // Plot variables
-    vector<int> snr_plot = {10, 30}; // snr; // -5, 0, 
+    vector<int> snr_plot =  snr; //{-5, 0, 10, 30}; //  
     const int pilot_plot = 5;
     const double carrier_freq_plot = 7e8;
     const int paths_plot = 5;
@@ -104,7 +104,7 @@ int main() {
             }
 
             // Add Rayleigh multipath + noise
-            CArray H_rayleigh_mtph = generate_rayleigh_mpth(modulated_seq.size()), H_rayleigh_mtph_perfect, H_rayleigh_mtph_pilot;
+            CArray H_rayleigh_mtph = generate_rayleigh_mpth(modulated_seq.size());
             vector<complex<double>> rayleigh_data = apply_channel(modulated_seq, H_rayleigh_mtph);
             vector<complex<double>> noisy_rayleigh_data = add_noise(rayleigh_data, mod_complexity[i], snr_plot[j]);
 
@@ -116,6 +116,8 @@ int main() {
             // Remove pilots
             CArray noisy_rayleigh_symbols, noisy_rayleigh_pilots;
             tie(noisy_rayleigh_symbols, noisy_rayleigh_pilots) = remove_pilot_symbols(noisy_rayleigh_data, pilot_plot);
+            // Remove pilots from H
+            CArray H_rayleigh_mtph_perfect, H_rayleigh_mtph_pilot;
             tie(H_rayleigh_mtph_perfect, H_rayleigh_mtph_pilot) = remove_pilot_symbols(H_rayleigh_mtph, pilot_plot);
 
             // Rename columns
@@ -145,13 +147,15 @@ int main() {
             // Remove pilots
             CArray noisy_doppler_symbols, noisy_doppler_pilots;
             tie(noisy_doppler_symbols, noisy_doppler_pilots) = remove_pilot_symbols(noisy_doppler_data, pilot_plot);
+            // Remove pilots from H
             CArray H_doppler_mtph_perfect, H_doppler_mtph_pilots;
             tie(H_doppler_mtph_perfect, H_doppler_mtph_pilots) = remove_pilot_symbols(H_doppler_mtph, pilot_plot);
 
             // Rename columns
             column_names = {
                 "re_doppler_noise_" + to_string(snr_plot[j]), 
-                "im_doppler_noise_" + to_string(snr_plot[j])};
+                "im_doppler_noise_" + to_string(snr_plot[j])
+                };
             
             // Save data to csv
             if (!doppler_flag) {
@@ -161,9 +165,6 @@ int main() {
             else {
                 add_to_csv(doppler_data_vector, column_names, mod_complexity_str[i] + "_doppler_snr.csv");
             }            
-
-            // 100.000/20 --interpolacion--> 100.000
-            // H_doppler_mtph_estimated = interpolation_cubic(pilotos);
 
             // Perfect Channel Estimation
             // y = (x * H) + n -> noisy_doppler_data and noisy_rayleigh_data
@@ -183,53 +184,86 @@ int main() {
 
             if (mod_str[i] == "PSK")
             {
-                pilot_symbol = QPSK.at(3);
+                pilot_symbol = QPSK.at(3)/sqrt(2);
             } else {
-                pilot_symbol = QAM16.at(3);
+                pilot_symbol = QAM16.at(3)/sqrt(10);
             }
 
-            // CUBIC INTERPOLATION
+            // CUBIC INTERPOLATION 
             CArray H_doppler_mtph_cubic(noisy_doppler_symbols.size()), H_temp_interp;
             for (size_t p = 0; p < noisy_doppler_pilots.size()-1; p++) {
                 complex<double> csi0 = noisy_doppler_pilots[p]/pilot_symbol, csi1 = noisy_doppler_pilots[p+1]/pilot_symbol;
-                H_temp_interp = interpolateComplexPoints(csi0, csi1, pilot_plot);
+                H_temp_interp = interpolateComplexPoints(csi0, csi1, pilot_plot+2);
 
-                for (size_t n = 0; n < H_temp_interp.size(); n++) {
-                    H_doppler_mtph_cubic[p*n + n] = H_temp_interp[n];
+                for (size_t n = 0; n < H_temp_interp.size()-2; n++) {
+                    H_doppler_mtph_cubic[p*n + n] = H_temp_interp[n+1];
                 }
             }
             CArray H_rayleigh_mtph_cubic(noisy_rayleigh_symbols.size());
             for (size_t p = 0; p < noisy_rayleigh_pilots.size()-1; p++) {
                 complex<double> csi0 = noisy_rayleigh_pilots[p]/pilot_symbol, csi1 = noisy_rayleigh_pilots[p+1]/pilot_symbol;
-                H_temp_interp = interpolateComplexPoints(csi0, csi1, pilot_plot);
+                H_temp_interp = interpolateComplexPoints(csi0, csi1, pilot_plot+2);
 
-                for (size_t n = 0; n < H_temp_interp.size(); n++) {
-                    H_rayleigh_mtph_cubic[p*n + n] = H_temp_interp[n];
+                for (size_t n = 0; n < H_temp_interp.size()-2; n++) {
+                    H_rayleigh_mtph_cubic[p*n + n] = H_temp_interp[n+1];
                 }
             }
-            // Eq
+            
+
+            // Equalization cubic interpolation
             CArray noisy_doppler_data_cubic = equalizate_channel(noisy_doppler_symbols, H_doppler_mtph_cubic);
             CArray noisy_rayleigh_data_cubic = equalizate_channel(noisy_rayleigh_symbols, H_rayleigh_mtph_cubic);
+            
             // Demodulation
             vector<int> doppler_seq_received_cubic, rayleigh_seq_received_cubic;
             doppler_seq_received_cubic = demod(noisy_doppler_data_cubic, mod_complexity[i], mod_str[i]);
             rayleigh_seq_received_cubic = demod(noisy_rayleigh_data_cubic, mod_complexity[i], mod_str[i]);
 
-            // column_names = {
-            // "original_sequence",
-            // "doppler_sequence",
-            // "rayleigh_sequence"
-            // };
+            // FFT interpolation
+            CArray H_doppler_mtph_fft(noisy_doppler_symbols.size());
+            for (size_t p = 0; p < noisy_doppler_pilots.size()-1; p++) {
+                complex<double> csi0 = noisy_doppler_pilots[p]/pilot_symbol, csi1 = noisy_doppler_pilots[p+1]/pilot_symbol;
+                H_temp_interp = fftInterpolateComplex(csi0, csi1, pilot_plot);
 
-            // write_to_csv({seq, doppler_seq_received, rayleigh_seq_received}, column_names, mod_complexity_str[i] + "_demodulation.csv");
+                for (size_t n = 0; n < H_temp_interp.size(); n++) {
+                    H_doppler_mtph_fft[p*n + n] = H_temp_interp[n];
+                }
+            }
+            CArray H_rayleigh_mtph_fft(noisy_rayleigh_symbols.size());
+            for (size_t p = 0; p < noisy_rayleigh_pilots.size()-1; p++) {
+                complex<double> csi0 = noisy_rayleigh_pilots[p]/pilot_symbol, csi1 = noisy_rayleigh_pilots[p+1]/pilot_symbol;
+                H_temp_interp = fftInterpolateComplex(csi0, csi1, pilot_plot);
+
+                for (size_t n = 0; n < H_temp_interp.size(); n++) {
+                    H_rayleigh_mtph_fft[p*n + n] = H_temp_interp[n];
+                }
+            }
+
+            // Equalization fft interpolation
+            CArray noisy_doppler_data_fft = equalizate_channel(noisy_doppler_symbols, H_doppler_mtph_fft);
+            CArray noisy_rayleigh_data_fft = equalizate_channel(noisy_rayleigh_symbols, H_rayleigh_mtph_fft);
+            
+            // Demodulation
+            vector<int> doppler_seq_received_fft, rayleigh_seq_received_fft;
+            doppler_seq_received_fft = demod(noisy_doppler_data_fft, mod_complexity[i], mod_str[i]);
+            rayleigh_seq_received_fft = demod(noisy_rayleigh_data_fft, mod_complexity[i], mod_str[i]);
+
+
+            // --------------
+
+            CArray modulated_seq_symbols, modulated_seq_pilots;
+            tie(modulated_seq_symbols, modulated_seq_pilots) = remove_pilot_symbols(modulated_seq, pilot_plot);
+            vector<int> aaa = demod(modulated_seq_symbols, mod_complexity[i], mod_str[i]);
             
             // PERFECT CSI
-            ber_doppler_perfect.push_back(compute_BER(seq, doppler_seq_received));
-            ber_rayleigh_perfect.push_back(compute_BER(seq, rayleigh_seq_received));
+            ber_doppler_perfect.push_back(compute_BER(aaa, doppler_seq_received, mod_complexity[i]));
+            ber_rayleigh_perfect.push_back(compute_BER(aaa, rayleigh_seq_received, mod_complexity[i]));
             // Cubic
-            ber_doppler_cubic.push_back(compute_BER(seq, doppler_seq_received_cubic));
-            ber_rayleigh_cubic.push_back(compute_BER(seq, rayleigh_seq_received_cubic));
+            ber_doppler_cubic.push_back(compute_BER(aaa, doppler_seq_received_cubic, mod_complexity[i]));
+            ber_rayleigh_cubic.push_back(compute_BER(aaa, rayleigh_seq_received_cubic, mod_complexity[i]));
             // FFT interpolation
+            ber_doppler_fft.push_back(compute_BER(aaa, doppler_seq_received_fft, mod_complexity[i]));
+            ber_rayleigh_fft.push_back(compute_BER(aaa, rayleigh_seq_received_fft, mod_complexity[i]));
 
 
             ber_snr.push_back((double)snr_plot[j]);
@@ -239,20 +273,20 @@ int main() {
             //     "BER_perfect",
             //     "BER_cubic"
             // };
-
-            printf("BER_Doppler = %f for SNR = %d, %s\n", compute_BER(seq, doppler_seq_received), snr_plot[j], mod_complexity_str[i].c_str());
-            printf("BER_Rayleigh = %f for SNR = %d, %s\n", compute_BER(seq, rayleigh_seq_received), snr_plot[j], mod_complexity_str[i].c_str());
+            printf("BER_Doppler = %f for SNR = %d, %s\n", compute_BER(aaa, doppler_seq_received, mod_complexity[i]), snr_plot[j], mod_complexity_str[i].c_str());
+            printf("BER_Rayleigh = %f for SNR = %d, %s\n", compute_BER(aaa, rayleigh_seq_received, mod_complexity[i]), snr_plot[j], mod_complexity_str[i].c_str());
         }
         // Save data to csv
         column_names = {
             "SNR",
             "BER_perfect",
-            "BER_cubic"
+            "BER_cubic",
+            "BER_fft"
         };
 
         if (!ber_flag) {
-            write_to_csv({ber_snr, ber_doppler_perfect, ber_doppler_cubic}, column_names, mod_complexity_str[i] + "_BER_doppler.csv");
-            write_to_csv({ber_snr, ber_rayleigh_perfect, ber_rayleigh_cubic}, column_names, mod_complexity_str[i] + "_BER_rayleigh.csv");
+            write_to_csv({ber_snr, ber_doppler_perfect, ber_doppler_cubic, ber_doppler_fft}, column_names, mod_complexity_str[i] + "_BER_doppler.csv");
+            write_to_csv({ber_snr, ber_rayleigh_perfect, ber_rayleigh_cubic, ber_doppler_fft}, column_names, mod_complexity_str[i] + "_BER_rayleigh.csv");
             ber_flag = true;
         } 
     }

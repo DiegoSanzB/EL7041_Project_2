@@ -64,7 +64,7 @@ vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, i
     // Get size of data
     int size = data.size();
     // Calculate the number of pilots to insert
-    int num_pilots = ceil(static_cast<double>(size) / pilot_spacing);
+    int num_pilots = ceil(static_cast<double>(size) / pilot_spacing)+1;
     // Create array to store data with pilot symbols
     vector<complex<double>> data_with_pilots(size + num_pilots);
     // Add pilot symbols
@@ -136,8 +136,12 @@ vector<complex<double>> apply_channel(const vector<complex<double>>& data, vecto
 vector<complex<double>> equalizate_channel(const vector<complex<double>>& data, vector<complex<double>>& H) {
     // Equalizate channel
     size_t size = data.size();
-
     vector<complex<double>> equalizated_data(size);
+
+    if (size != H.size()) {
+        cout << "[EQ] Sizes don't match!";
+        return equalizated_data;
+    }
 
     for (size_t i = 0; i < size; i++) {
         equalizated_data[i] = data[i] / H[i];
