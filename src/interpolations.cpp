@@ -56,67 +56,6 @@ vector<complex<double>> fftInterpolateComplex(const vector<complex<double>>& ori
     }
     return interpolated_values;
 }
-/*
-vector<complex<double>> fftInterpolateComplex(const complex<double>& point1, const complex<double>& point2, int n_interp) {
-    // Initialize two input datas
-    // alglib::real_1d_array 
-    alglib::real_1d_array Re, Im;
-    Re.setlength(2);
-    Im.setlength(2);
-    Re[0] = point1.real(); Re[1] = point2.real();
-    Im[0] = point1.imag(); Im[1] = point2.imag();
-    
-
-    // Perform FFT on the original data
-    alglib::complex_1d_array re;
-    alglib::complex_1d_array im;
-    fftr1d(Re, re);
-    fftr1d(Im, im);
-
-    // Prepare new arrays for zero-padded frequency domain data
-    alglib::complex_1d_array Re_freq, Im_freq;
-    Re_freq.setlength(n_interp);
-    Im_freq.setlength(n_interp);
-    for (int i = 0; i < n_interp; ++i) {
-        Re_freq[i] = alglib::complex(0, 0);
-        Im_freq[i] = alglib::complex(0, 0);
-    }
-
-    // Copy the low-frequency components
-    int halfOriginal = (Re.length() / 2) + 1; // +1 to include the Nyquist frequency for even lengths
-    for (int i = 0; i < halfOriginal; ++i) {
-        Re_freq[i] = re[i];
-        Im_freq[i] = im[i];
-    }
-
-    // Copy the high-frequency components, maintaining symmetry
-    for (int i = 1; i < halfOriginal - 1; ++i) { // Skip the first (DC) and last (Nyquist) components
-        Re_freq[n_interp - i] = re[re.length() - i];
-        Im_freq[n_interp - i] = im[Im.length() - i];
-    }
-
-    // Perform inverse FFT on the zero-padded data
-    alglib::real_1d_array Re_end, Im_end;
-    Re_freq.setlength(n_interp);
-    Im_freq.setlength(n_interp);
-    alglib::fftr1dinv(Re_freq, Re_end);
-    alglib::fftr1dinv(Im_freq, Im_end);
-    printf("%s\n", Re_end.tostring(3).c_str());
-
-    // Convert the results back to vector<complex<double>>
-    // Includes scaling
-    vector<complex<double>> interpolated_values(n_interp);
-    for (int i = 0; i < n_interp; ++i) {
-        interpolated_values[i] = complex<double>(Re_end[i]*n_interp/2, Im_end[i]*n_interp/2);
-    }
-
-    // Rotate
-    rotate(interpolated_values.begin(), interpolated_values.end() - (n_interp) / 2, interpolated_values.end());
-
-    return interpolated_values;
-
-}
-*/
 
 vector<complex<double>> interpolateComplexPoints(const complex<double>& point1, const complex<double>& point2, int n_interp) {
     // Prepare data for ALGLIB
