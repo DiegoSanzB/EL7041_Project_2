@@ -50,9 +50,14 @@ vector<complex<double>> fftInterpolateComplex(const vector<complex<double>>& ori
     // Denormalize
     double factor = static_cast<double>(intersize) / n;
     // Convert to vector
-    vector<complex<double>> interpolated_values(intersize - n_interp);
-    for (int i = 0; i < intersize - n_interp; ++i) {
-        interpolated_values[i] = complex<double>(interpolated[i].x * factor, interpolated[i].y * factor);
+    vector<complex<double>> interpolated_values(intersize - n_interp - n);
+    int idx = 0;
+    for (int i = 0; i < intersize - n_interp - n; ++i) {
+        // if i is divisible by n_interp, skip the value
+        if (i % n_interp == 0) {
+            idx++;
+        } 
+        interpolated_values[i] = complex<double>(interpolated[i + idx].x * factor, interpolated[i + idx].y * factor);
     }
     return interpolated_values;
 }
