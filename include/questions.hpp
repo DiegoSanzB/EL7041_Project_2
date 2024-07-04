@@ -21,7 +21,7 @@ const vector<string> MOD_STR = {"PSK", "QAM"};
 // Int vector from -2 to 32
 const vector<int> SNRs = []() {
     vector<int> snrs;
-    for (int i = -2; i <= 32; i++) {
+    for (int i = -2; i <= 30; i++) {
         snrs.push_back(i);
     }
     return snrs;

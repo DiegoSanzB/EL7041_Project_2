@@ -38,7 +38,7 @@ void constellations(std::mt19937& gen){
     for (int i = 0; i < MOD_COMPLEXITY.size(); i++){
         // Get pilot
         complex<double> pilot_symbol = (MOD_STR[i] == "PSK") ? QPSK.at(PILOT) : QAM16.at(PILOT);
-        pilot_symbol = (1, 1);
+        pilot_symbol = (Complex)(1, 0);
         // Generate data
         vector<int> seq = generate_sequence_bins(MOD_COMPLEXITY[i], M);
         // Modulate sequence
@@ -133,13 +133,17 @@ vector<double> compute_ber_scenario(std::mt19937& gen, int pilot_spacing, int i,
     vector<double> out;
     // Get pilot
     complex<double> pilot_symbol = (MOD_STR[i] == "PSK") ? QPSK.at(PILOT) : QAM16.at(PILOT);
-    pilot_symbol = (1, 1);
     // Generate data
     vector<int> seq = generate_sequence_bins(MOD_COMPLEXITY[i], M);
     // Modulate sequence
     vector<complex<double>> modulated_seq = modulate_sequence(seq, MOD_COMPLEXITY[i]);
     // Add pilot
     modulated_seq = add_pilot_symbols(modulated_seq, MOD_COMPLEXITY[i], pilot_spacing);
+
+    // CArray modulated_seq_symbols, modulated_seq_pilots;
+    // tie(modulated_seq_symbols, modulated_seq_pilots) = remove_pilot_symbols(modulated_seq, pilot_spacing);
+    // vector<int> aaa = demod(modulated_seq_symbols, MOD_COMPLEXITY[i], MOD_STR[i]);
+    // vector<int> aaa_pilots = demod(modulated_seq_pilots, MOD_COMPLEXITY[i], MOD_STR[i]);
 
     // RAYLEIGH
     CArray H_rayleigh = generate_rayleigh_mpth(modulated_seq.size(), gen);
@@ -155,7 +159,7 @@ vector<double> compute_ber_scenario(std::mt19937& gen, int pilot_spacing, int i,
     vector<int> seq_perf_r = demod(syms_perf_r, MOD_COMPLEXITY[i], MOD_STR[i]);
     out.push_back(compute_BER(seq, seq_perf_r, MOD_COMPLEXITY[i]));
     // Cubic spline channel estimation
-    CArray H_cubic = cubic_interpolation(H_pilots, pilot_symbol, pilot_spacing, noise_r_syms.size());
+    CArray H_cubic = cubic_interpolation(noise_r_pilots, pilot_symbol, pilot_spacing, noise_r_syms.size());
     CArray syms_cubic_r = equalizate_channel(noise_r_syms, H_cubic);
     vector<int> seq_cubic_r = demod(syms_cubic_r, MOD_COMPLEXITY[i], MOD_STR[i]);
     out.push_back(compute_BER(seq, seq_cubic_r, MOD_COMPLEXITY[i]));
@@ -176,7 +180,7 @@ vector<double> compute_ber_scenario(std::mt19937& gen, int pilot_spacing, int i,
     vector<int> seq_perf_d = demod(syms_perf_d, MOD_COMPLEXITY[i], MOD_STR[i]);
     out.push_back(compute_BER(seq, seq_perf_d, MOD_COMPLEXITY[i]));
     // Cubic spline channel estimation
-    H_cubic = cubic_interpolation(H_pilots, pilot_symbol, pilot_spacing, noise_r_syms.size());
+    H_cubic = cubic_interpolation(noise_d_pilots, pilot_symbol, pilot_spacing, noise_d_syms.size());
     CArray syms_cubic_d = equalizate_channel(noise_d_syms, H_cubic);
     vector<int> seq_cubic_d = demod(syms_cubic_d, MOD_COMPLEXITY[i], MOD_STR[i]);
     out.push_back(compute_BER(seq, seq_cubic_d, MOD_COMPLEXITY[i]));
@@ -189,17 +193,56 @@ vector<double> compute_ber_scenario(std::mt19937& gen, int pilot_spacing, int i,
 
 
 void compute_ber_data(std::mt19937& gen) {
+    bool ber_flag = false;
+    string ber_file = "BER.csv";
+    vector<string> column_names = {
+        "BER_R_perfect",
+        "BER_R_cubic",
+        "BER_R_fft",
+        "BER_D_perfect",
+        "BER_D_cubic",
+        "BER_D_fft",
+        "snr",
+        "pilot_spacing",
+        "path",
+        "speed",
+        "carrier_freq",
+        "mod_complexity"
+    };
+
     for (int i = 0; i < MOD_COMPLEXITY.size(); i++){
         for (int pilot_spacing: PILOT_SPACING) {
         for (int path: PATHS) {
         for (int speed: SPEED) {
         for (double carrier_freq: CARRIER_FREQ) {
-        for (int run = 0; run < NUMBER_OF_RUNS; run++) {
-            for (int snr: SNRs) {
-                vector<double> out = compute_ber_scenario(gen, pilot_spacing, i, path, speed, carrier_freq, snr);
-                for (size_t n = 0; n < out.size(); n++) {
-                    cout << out[n] << endl;
+        for (int snr: SNRs) {
+        vector<double> out_j, out = {0, 0, 0, 0, 0, 0};
+            for (int run = 0; run < NUMBER_OF_RUNS; run++) {
+                out_j = compute_ber_scenario(gen, pilot_spacing, i, path, speed, carrier_freq, snr);
+                for (int j = 0; j < 6; j++) {
+                    out[j] += out_j[j];
                 }
+            }
+            for (int j = 0; j < 6; j++) {
+                out[j] /= NUMBER_OF_RUNS;
+            }
+            vector<double> row = out;
+            row.push_back((double) snr);
+            row.push_back((double) pilot_spacing);
+            row.push_back((double) path);
+            row.push_back((double) speed);
+            row.push_back(carrier_freq);
+            row.push_back((double) MOD_COMPLEXITY[i]);
+            
+            if (ber_flag) {
+                append_to_csv(row, ber_file);
+            } else {
+                vector<vector<double>> row_formatted;
+                for (auto value: row) {
+                    row_formatted.push_back({value});
+                }
+                write_to_csv(row_formatted, column_names, ber_file);
+                ber_flag = true;
             }
         }
         }

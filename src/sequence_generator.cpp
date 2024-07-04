@@ -8,7 +8,7 @@ vector<int> generate_sequence_bins(int mod_complexity, int n) {
     // determine max value for each simbol
     int max = pow(2, bps) - 1;
     // And how many to create
-    int size = MAX_SEQUENCE_LENGTH/bps;
+    int size = n/bps;
     cout << "Sequence of size " << size << " with max value " << max << " Which in binary looks like " << bitset<4>(max) << endl;
     // Create sequence and add random numbers
     vector<int> sequence(size);
@@ -61,17 +61,17 @@ vector<complex<double>> add_pilot_symbols(const vector<complex<double>>& data, i
         cerr << "Error: Modulation complexity not supported." << endl;
         return {};
     }
-    pilot_symbol = (1, 1);
+    // pilot_symbol = (1, 1);
     // Get size of data
     int size = data.size();
     // Calculate the number of pilots to insert
-    int num_pilots = ceil(static_cast<double>(size) / pilot_spacing)+1;
+    int num_pilots = ceil(static_cast<double>(size) / pilot_spacing) + 1;
     // Create array to store data with pilot symbols
     vector<complex<double>> data_with_pilots(size + num_pilots);
     // Add pilot symbols
     int pilot_counter = 0;
-    for (int i = 0; i < size + size/pilot_spacing; i++) {
-        if (i % (pilot_spacing) == 0) {
+    for (int i = 0; i < size + num_pilots; i++) {
+        if (i % (pilot_spacing + 1) == 0) {
             data_with_pilots[i] = pilot_symbol;
             pilot_counter++;
         } else {
