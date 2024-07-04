@@ -30,6 +30,15 @@ CArray cubic_interpolation(CArray pilots, Complex pilot_symbol, size_t n_interp,
     return interpolation;
 }
 
+CArray fft_interpolation(CArray pilots, Complex pilot_symbol, size_t n_interp) {
+    CArray csi, interpolation;
+    for (auto value: pilots) {
+        csi.push_back(value/pilot_symbol);
+    }
+    interpolation = fftInterpolateComplex(csi, n_interp);
+    
+    return interpolation;
+}
 
 void constellations(std::mt19937& gen){
     // Iterate by modulation complexity
@@ -164,8 +173,10 @@ vector<double> compute_ber_scenario(std::mt19937& gen, int pilot_spacing, int i,
     vector<int> seq_cubic_r = demod(syms_cubic_r, MOD_COMPLEXITY[i], MOD_STR[i]);
     out.push_back(compute_BER(seq, seq_cubic_r, MOD_COMPLEXITY[i]));
     // FFT channel estimation
-    // TODO
-    out.push_back(-1);
+    CArray H_fft = fft_interpolation(noise_r_pilots, pilot_symbol, pilot_spacing);
+    CArray syms_fft_r = equalizate_channel(noise_r_syms, H_fft);
+    vector<int> seq_fft_r = demod(syms_fft_r, MOD_COMPLEXITY[i], MOD_STR[i]);
+    out.push_back(compute_BER(seq, seq_fft_r, MOD_COMPLEXITY[i]));
 
     // DOPPLER
     CArray H_doppler = generate_doppler_mpth(modulated_seq.size(), path, speed, carrier_freq, gen);
@@ -185,16 +196,18 @@ vector<double> compute_ber_scenario(std::mt19937& gen, int pilot_spacing, int i,
     vector<int> seq_cubic_d = demod(syms_cubic_d, MOD_COMPLEXITY[i], MOD_STR[i]);
     out.push_back(compute_BER(seq, seq_cubic_d, MOD_COMPLEXITY[i]));
     // FFT channel estimation
-    // TODO
-    out.push_back(-1);
+    H_fft = fft_interpolation(noise_d_pilots, pilot_symbol, pilot_spacing);
+    CArray syms_fft_d = equalizate_channel(noise_d_syms, H_fft);
+    vector<int> seq_fft_d = demod(syms_fft_d, MOD_COMPLEXITY[i], MOD_STR[i]);
+    out.push_back(compute_BER(seq, seq_fft_d, MOD_COMPLEXITY[i]));
     
     return out;
 }
 
-
-void compute_ber_data(std::mt19937& gen) {
+// i -> mod_complexity
+void compute_ber_data(std::mt19937& gen, int i) {
     bool ber_flag = false;
-    string ber_file = "BER.csv";
+    string ber_file = "BER_" + MOD_COMPLEXITY_STR[i] + ".csv";
     vector<string> column_names = {
         "BER_R_perfect",
         "BER_R_cubic",
@@ -210,44 +223,44 @@ void compute_ber_data(std::mt19937& gen) {
         "mod_complexity"
     };
 
-    for (int i = 0; i < MOD_COMPLEXITY.size(); i++){
-        for (int pilot_spacing: PILOT_SPACING) {
-        for (int path: PATHS) {
-        for (int speed: SPEED) {
-        for (double carrier_freq: CARRIER_FREQ) {
-        for (int snr: SNRs) {
-        vector<double> out_j, out = {0, 0, 0, 0, 0, 0};
-            for (int run = 0; run < NUMBER_OF_RUNS; run++) {
-                out_j = compute_ber_scenario(gen, pilot_spacing, i, path, speed, carrier_freq, snr);
-                for (int j = 0; j < 6; j++) {
-                    out[j] += out_j[j];
-                }
-            }
+    // for (int i = 0; i < MOD_COMPLEXITY.size(); i++){ // esto corre en threads separados y se guarda en dos archivos
+    for (int pilot_spacing: PILOT_SPACING) {
+    for (int path: PATHS) {
+    for (int speed: SPEED) {
+    for (double carrier_freq: CARRIER_FREQ) {
+    for (int snr: SNRs) {
+    vector<double> out_j, out = {0, 0, 0, 0, 0, 0};
+        for (int run = 0; run < NUMBER_OF_RUNS; run++) {
+            out_j = compute_ber_scenario(gen, pilot_spacing, i, path, speed, carrier_freq, snr);
             for (int j = 0; j < 6; j++) {
-                out[j] /= NUMBER_OF_RUNS;
-            }
-            vector<double> row = out;
-            row.push_back((double) snr);
-            row.push_back((double) pilot_spacing);
-            row.push_back((double) path);
-            row.push_back((double) speed);
-            row.push_back(carrier_freq);
-            row.push_back((double) MOD_COMPLEXITY[i]);
-            
-            if (ber_flag) {
-                append_to_csv(row, ber_file);
-            } else {
-                vector<vector<double>> row_formatted;
-                for (auto value: row) {
-                    row_formatted.push_back({value});
-                }
-                write_to_csv(row_formatted, column_names, ber_file);
-                ber_flag = true;
+                out[j] += out_j[j];
             }
         }
+        for (int j = 0; j < 6; j++) {
+            out[j] /= NUMBER_OF_RUNS;
         }
-        }
-        }
+        vector<double> row = out;
+        row.push_back((double) snr);
+        row.push_back((double) pilot_spacing);
+        row.push_back((double) path);
+        row.push_back((double) speed);
+        row.push_back(carrier_freq);
+        row.push_back((double) MOD_COMPLEXITY[i]);
+        
+        if (ber_flag) {
+            append_to_csv(row, ber_file);
+        } else {
+            vector<vector<double>> row_formatted;
+            for (auto value: row) {
+                row_formatted.push_back({value});
+            }
+            write_to_csv(row_formatted, column_names, ber_file);
+            ber_flag = true;
         }
     }
+    }
+    }
+    }
+    }
+    // }
 }

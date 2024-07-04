@@ -39,7 +39,7 @@ const int PATH_PLOT = 5;
 const int SPEED_PLOT = 30;
 // Bit amount
 const int M = 1e5;
-const int NUMBER_OF_RUNS = 21;
+const int NUMBER_OF_RUNS = 3;
 /*
 ------------------------------
        
@@ -48,6 +48,6 @@ const int NUMBER_OF_RUNS = 21;
 
 void separate_and_save_complex(const vector<complex<double>> &data, string CSV_FILENAME, string identifier, bool create_new_file);
 void constellations(std::mt19937& gen);
-void compute_ber_data(std::mt19937& gen);
+void compute_ber_data(std::mt19937& gen, int i);
 
 #endif
