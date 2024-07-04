@@ -3,46 +3,78 @@ using namespace std;
 
 
 vector<complex<double>> fftInterpolateComplex(const vector<complex<double>>& original, int n_interp) {
-    // Get array size
-    int n = original.size();
-    // Determine lenght of interpolation array
-    int intersize = n + (n) * n_interp;
-    // Create ALGLIB array
-    alglib::complex_1d_array original_alglib;
-    original_alglib.setlength(n);
-    // Insert values
-    for (int i = 0; i < n; ++i) {
-        original_alglib[i] = alglib::complex(original[i].real(), original[i].imag());
+    try {
+        // Get array size
+        int n = original.size();
+        if (n <= 0) {
+            throw runtime_error("Input vector size must be greater than zero.");
+        }
+
+        // Determine length of interpolation array
+        int intersize = n + (n * n_interp);
+
+        // Create ALGLIB array
+        alglib::complex_1d_array original_alglib;
+        original_alglib.setlength(n);
+
+        // Insert values
+        for (int i = 0; i < n; ++i) {
+            original_alglib[i] = alglib::complex(original[i].real(), original[i].imag());
+            // cout << original[i].real() << "      " << original[i].imag() << endl;
+        }
+
+        // Apply FFT to the data
+        alglib::fftc1d(original_alglib);
+
+        // Add zeros
+        alglib::complex_1d_array interpolated;
+        interpolated.setlength(intersize);
+        // Initialize the array to zero
+        for (int i = 0; i < intersize; ++i) {
+            interpolated[i] = alglib::complex(0.0, 0.0);
+        }
+
+        int half_n = n / 2; // Half of the original size
+
+        // Copy the low-frequency components
+        for (int i = 0; i <= half_n; ++i) { // Include the Nyquist frequency
+            interpolated[i] = original_alglib[i];
+        }
+
+        // High-frequency components are copied to the end, maintaining symmetry
+        for (int i = 1; i < half_n; ++i) { // Skip the Nyquist frequency if n is even
+            interpolated[intersize - i] = original_alglib[n - i];
+        }
+
+        // Apply inverse FFT
+        alglib::fftc1dinv(interpolated);
+
+        // Denormalize
+        double factor = static_cast<double>(intersize) / n;
+
+        // Convert to vector
+        vector<complex<double>> interpolated_values(intersize - n_interp - n);
+        int idx = 0;
+        for (int i = 0; i < intersize - n_interp - n; ++i) {
+            // if i is divisible by n_interp, skip the value
+            if (i % n_interp == 0) {
+                idx++;
+            }
+            interpolated_values[i] = complex<double>(interpolated[i + idx].x * factor, interpolated[i + idx].y * factor);
+        }
+
+        return interpolated_values;
+    } catch (const alglib::ap_error& e) {
+        for (int i = 0; i < original.size(); ++i) {
+            cout << original[i].real() << "      " << original[i].imag() << endl;
+        }
+        cerr << "ALGLIB error: " << e.msg << endl;
+        
+        throw;
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+        throw;
     }
-    // Apply a fft for data
-    alglib::fftc1d(original_alglib);
-    // Add zeros
-    alglib::complex_1d_array interpolated;
-    interpolated.setlength(intersize);
-    int half_n = n / 2; // Half of the original size
-    // Copy the low-frequency components
-    for (int i = 0; i <= half_n; ++i) { // Include the Nyquist frequency
-        interpolated[i] = original_alglib[i];
-    }
-    // High-frequency components are copied to the end, maintaining symmetry
-    for (int i = 1; i < half_n; ++i) { // Skip the Nyquist frequency if n is even
-        interpolated[intersize - i] = original_alglib[n - i];
-    }
-    // Apply inverse fft
-    alglib::fftc1dinv(interpolated);
-    // Denormalize
-    double factor = static_cast<double>(intersize) / n;
-    // Convert to vector
-    vector<complex<double>> interpolated_values(intersize - n_interp - n);
-    int idx = 0;
-    for (int i = 0; i < intersize - n_interp - n; ++i) {
-        // if i is divisible by n_interp, skip the value
-        if (i % n_interp == 0) {
-            idx++;
-        } 
-        interpolated_values[i] = complex<double>(interpolated[i + idx].x * factor, interpolated[i + idx].y * factor);
-    }
-    return interpolated_values;
 }
 
 vector<complex<double>> interpolateComplexPoints(const complex<double>& point1, const complex<double>& point2, int n_interp) {

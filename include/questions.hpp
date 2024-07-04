@@ -39,7 +39,7 @@ const int PATH_PLOT = 5;
 const int SPEED_PLOT = 30;
 // Bit amount
 const int M = 1e5;
-const int NUMBER_OF_RUNS = 3;
+const int NUMBER_OF_RUNS = 21;
 /*
 ------------------------------
        
