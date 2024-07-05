@@ -9,16 +9,10 @@ int main() {
     std::random_device rd;
     std::mt19937 gen(rd());
     
-    // constellations(gen);
-    // compute_ber_data(gen);
-    // int i = 0;
-    // thread thread_mod_complexity_4(compute_ber_data, gen, i);
-    // i = 1;
-    // thread thread_mod_complexity_16(compute_ber_data, gen, i);
+    // Create constellations for scenario
+    constellations(gen);
 
-    // thread_mod_complexity_4.join();
-    // thread_mod_complexity_16.join();
-
+    // Run BER scenarios
     vector<thread> threads;
     mutex gen_mutex;
 

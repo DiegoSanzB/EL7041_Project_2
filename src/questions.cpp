@@ -47,7 +47,6 @@ void constellations(std::mt19937& gen){
     for (int i = 0; i < MOD_COMPLEXITY.size(); i++){
         // Get pilot
         complex<double> pilot_symbol = (MOD_STR[i] == "PSK") ? QPSK.at(PILOT) : QAM16.at(PILOT);
-        pilot_symbol = (Complex)(1, 0);
         // Generate data
         vector<int> seq = generate_sequence_bins(MOD_COMPLEXITY[i], M);
         // Modulate sequence
@@ -92,18 +91,21 @@ void constellations(std::mt19937& gen){
             separate_and_save_complex(H_eq_r, MOD_COMPLEXITY_STR[i] + "_eq_rayleigh_perfect.csv", to_string(SNR_PLOT[j]), bool_perfect);
             bool_perfect = false;
             // Cubic spline channel estimation
-            CArray H_cubic = cubic_interpolation(H_pilots, pilot_symbol, PILOT_PLOT, noise_r_syms.size());
+            CArray H_cubic = cubic_interpolation(noise_r_pilots, pilot_symbol, PILOT_PLOT, noise_r_syms.size());
             CArray H_cubic_eq = equalizate_channel(noise_r_syms, H_cubic);
             // Save equalized data
             separate_and_save_complex(H_cubic_eq, MOD_COMPLEXITY_STR[i] + "_eq_rayleigh_cubic.csv", to_string(SNR_PLOT[j]), bool_cubic);
             bool_cubic = false;
             // FFT channel estimation
-            // TODO
+            CArray H_fft = fft_interpolation(noise_r_pilots, pilot_symbol, PILOT_PLOT);
+            CArray H_fft_eq = equalizate_channel(noise_r_syms, H_fft);
+            // Save equalized data
+            separate_and_save_complex(H_fft_eq, MOD_COMPLEXITY_STR[i] + "_eq_rayleigh_fft.csv", to_string(SNR_PLOT[j]), bool_fft);
+            bool_fft = false;
         }
 
         // Reset bool flags
         bool_plot = true, bool_perfect = true, bool_fft = true, bool_cubic = true;
-
 
         // Finite paths (Doppler)
         for (int j = 0; j < SNR_PLOT.size(); j++){
@@ -125,13 +127,17 @@ void constellations(std::mt19937& gen){
             separate_and_save_complex(H_eq_d, MOD_COMPLEXITY_STR[i] + "_eq_doppler_perfect.csv", to_string(SNR_PLOT[j]), bool_perfect);
             bool_perfect = false;
             // Cubic spline channel estimation
-            CArray H_cubic = cubic_interpolation(H_pilots, pilot_symbol, PILOT_PLOT, noise_d_syms.size());
+            CArray H_cubic = cubic_interpolation(noise_d_pilots, pilot_symbol, PILOT_PLOT, noise_d_syms.size());
             CArray H_cubic_eq = equalizate_channel(noise_d_syms, H_cubic);
             // Save equalized data
             separate_and_save_complex(H_cubic_eq, MOD_COMPLEXITY_STR[i] + "_eq_doppler_cubic.csv", to_string(SNR_PLOT[j]), bool_cubic);
             bool_cubic = false;
             // FFT channel estimation
-            // TODO
+            CArray H_fft = fft_interpolation(noise_d_pilots, pilot_symbol, PILOT_PLOT);
+            CArray H_fft_eq = equalizate_channel(noise_d_syms, H_fft);
+            // Save equalized data
+            separate_and_save_complex(H_fft_eq, MOD_COMPLEXITY_STR[i] + "_eq_doppler_fft.csv", to_string(SNR_PLOT[j]), bool_cubic);
+            bool_fft = false;
         }
         // Reset bool flags
         bool_plot = true, bool_perfect = true, bool_fft = true, bool_cubic = true;
@@ -148,11 +154,6 @@ vector<double> compute_ber_scenario(std::mt19937& gen, int pilot_spacing, int i,
     vector<complex<double>> modulated_seq = modulate_sequence(seq, MOD_COMPLEXITY[i]);
     // Add pilot
     modulated_seq = add_pilot_symbols(modulated_seq, MOD_COMPLEXITY[i], pilot_spacing);
-
-    // CArray modulated_seq_symbols, modulated_seq_pilots;
-    // tie(modulated_seq_symbols, modulated_seq_pilots) = remove_pilot_symbols(modulated_seq, pilot_spacing);
-    // vector<int> aaa = demod(modulated_seq_symbols, MOD_COMPLEXITY[i], MOD_STR[i]);
-    // vector<int> aaa_pilots = demod(modulated_seq_pilots, MOD_COMPLEXITY[i], MOD_STR[i]);
 
     // RAYLEIGH
     CArray H_rayleigh = generate_rayleigh_mpth(modulated_seq.size(), gen);
