@@ -230,7 +230,7 @@ void compute_ber_data(std::mt19937& gen, int i) {
     for (int speed: SPEED) {
     for (double carrier_freq: CARRIER_FREQ) {
     for (int snr: SNRs) {
-    vector<double> out_j, out = {0, 0, 0, 0, 0, 0};
+        vector<double> out_j, out = {0, 0, 0, 0, 0, 0};
         for (int run = 0; run < NUMBER_OF_RUNS; run++) {
             out_j = compute_ber_scenario(gen, pilot_spacing, i, path, speed, carrier_freq, snr);
             for (int j = 0; j < 6; j++) {

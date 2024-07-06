@@ -17,7 +17,7 @@ int main() {
     mutex gen_mutex;
 
     // Launch two threads with different values of i
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 1; ++i) {
         threads.emplace_back([gen, i]() mutable {
             compute_ber_data(gen, i);
         });
